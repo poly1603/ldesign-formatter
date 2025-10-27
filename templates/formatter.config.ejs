@@ -1,0 +1,23 @@
+module.exports = {
+// 选择预设配置
+preset: '<%= preset %>',
+
+  // Prettier 配置
+  prettier: <%= JSON.stringify(prettier, null, 2) %>,
+
+    // ESLint 配置
+    <% if (eslint && Object.keys(eslint).length> 0) { %>eslint: <%= JSON.stringify(eslint, null, 2) %>,<% } %>
+
+          // Stylelint 配置
+          <% if (stylelint && Object.keys(stylelint).length> 0) { %>stylelint: <%= JSON.stringify(stylelint, null, 2) %>
+              ,<% } %>
+
+                // 文件过滤
+                ignore: <%= JSON.stringify(ignore, null, 2) %>,
+
+                  // Git hooks 配置
+                  gitHooks: {
+                  preCommit: <%= gitHooks.preCommit %>,
+                    prePush: <%= gitHooks.prePush || false %>,
+                      },
+                      }

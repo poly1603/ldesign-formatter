@@ -1,0 +1,9 @@
+module.exports = {
+<% if (extends) { %>extends: <%= JSON.stringify(extends) %>,<% } %>
+      <% if (parser) { %>parser: '<%= parser %>',<% } %>
+            <% if (parserOptions) { %>parserOptions: <%= JSON.stringify(parserOptions, null, 2) %>,<% } %>
+                  <% if (plugins && plugins.length> 0) { %>plugins: <%= JSON.stringify(plugins) %>,<% } %>
+                        <% if (env) { %>env: <%= JSON.stringify(env, null, 2) %>,<% } %>
+                              <% if (settings) { %>settings: <%= JSON.stringify(settings, null, 2) %>,<% } %>
+                                    <% if (rules) { %>rules: <%= JSON.stringify(rules, null, 2) %>,<% } %>
+                                          }

@@ -1,0 +1,6 @@
+{
+<% if (extends) { %>"extends": <%= JSON.stringify(extends) %>,<% } %>
+      <% if (plugins && plugins.length> 0) { %>"plugins": <%= JSON.stringify(plugins) %>,<% } %>
+            <% if (rules) { %>"rules": <%= JSON.stringify(rules, null, 2) %>
+                <% } %>
+                  }

@@ -1,0 +1,15 @@
+src
+node_modules
+coverage
+*.log
+.DS_Store
+.vscode
+.idea
+*.tsbuildinfo
+.eslintcache
+tsconfig.json
+tsup.config.ts
+vitest.config.ts
+.git
+.gitignore
+
