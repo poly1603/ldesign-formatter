@@ -16,6 +16,8 @@ export { FileCollector } from './core/file-collector.js'
 export { Formatter } from './core/formatter.js'
 export { IncrementalFormatter } from './core/incremental-formatter.js'
 export { GitHooksManager } from './core/git-hooks-manager.js'
+export { CacheManager } from './core/cache-manager.js'
+export { ConflictDetector, createConflictDetector } from './core/conflict-detector.js'
 
 // 导出集成
 export { PrettierIntegration } from './integrations/prettier.js'
@@ -26,4 +28,5 @@ export { StylelintIntegration } from './integrations/stylelint.js'
 export { Logger, logger } from './utils/logger.js'
 export * from './utils/file-utils.js'
 export * from './utils/git-utils.js'
+export { ProjectDetector, createProjectDetector } from './utils/project-detector.js'
 

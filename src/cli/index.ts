@@ -4,6 +4,9 @@ import { Command } from 'commander'
 import { initCommand } from './commands/init.js'
 import { formatCommand } from './commands/format.js'
 import { checkCommand } from './commands/check.js'
+import { watchCommand } from './commands/watch.js'
+import { statsCommand } from './commands/stats.js'
+import { ignoreAddCommand, ignoreRemoveCommand, ignoreListCommand } from './commands/ignore.js'
 import { logger } from '../utils/logger.js'
 
 // 创建 CLI 程序
@@ -56,6 +59,73 @@ program
   .action(async (paths, options) => {
     try {
       await checkCommand(paths, options)
+    } catch (error) {
+      logger.error('Command failed', error as Error)
+      process.exit(1)
+    }
+  })
+
+// watch 命令
+program
+  .command('watch [paths...]')
+  .description('监听文件变化并自动格式化')
+  .option('-v, --verbose', '显示详细信息')
+  .option('-d, --debounce <ms>', '防抖延迟（毫秒）', '300')
+  .action(async (paths, options) => {
+    try {
+      await watchCommand(paths, { ...options, debounce: parseInt(options.debounce) })
+    } catch (error) {
+      logger.error('Command failed', error as Error)
+      process.exit(1)
+    }
+  })
+
+// stats 命令
+program
+  .command('stats')
+  .description('显示格式化统计信息')
+  .action(async () => {
+    try {
+      await statsCommand()
+    } catch (error) {
+      logger.error('Command failed', error as Error)
+      process.exit(1)
+    }
+  })
+
+// ignore 命令
+const ignoreCommand = program.command('ignore').description('管理忽略规则')
+
+ignoreCommand
+  .command('add <patterns...>')
+  .description('添加忽略规则')
+  .action(async (patterns) => {
+    try {
+      await ignoreAddCommand(patterns)
+    } catch (error) {
+      logger.error('Command failed', error as Error)
+      process.exit(1)
+    }
+  })
+
+ignoreCommand
+  .command('remove <patterns...>')
+  .description('移除忽略规则')
+  .action(async (patterns) => {
+    try {
+      await ignoreRemoveCommand(patterns)
+    } catch (error) {
+      logger.error('Command failed', error as Error)
+      process.exit(1)
+    }
+  })
+
+ignoreCommand
+  .command('list')
+  .description('列出所有忽略规则')
+  .action(async () => {
+    try {
+      await ignoreListCommand()
     } catch (error) {
       logger.error('Command failed', error as Error)
       process.exit(1)

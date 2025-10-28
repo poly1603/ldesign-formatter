@@ -10,7 +10,12 @@
 - ⚙️ **自定义规则** - 支持项目级规则覆盖
 - 📈 **增量格式化** - 只格式化变更的文件，提高效率
 - 🔧 **IDE 集成** - 完美支持 VSCode、WebStorm 等主流 IDE
-- 📦 **预设配置** - 提供多种预设配置（React、Vue、TypeScript等）
+- 📦 **预设配置** - 提供多种预设配置（React、Vue、Angular、Svelte、Next.js、Nuxt等）
+- 👁️ **Watch 模式** - 实时监听文件变化，自动格式化
+- 📊 **统计分析** - 显示项目格式化统计信息
+- ⚡ **智能缓存** - 自动缓存已格式化文件，避免重复处理
+- ⚠️ **冲突检测** - 自动检测并提示规则冲突
+- 🛠️ **项目检测** - 自动识别项目类型，推荐合适配置
 
 ## 📦 安装
 
@@ -66,6 +71,12 @@ npx ldesign-formatter format --staged
 - `vue-typescript` - Vue.js + TypeScript 项目配置（推荐）
 - `react` - React 项目配置
 - `react-typescript` - React + TypeScript 项目配置
+- `angular` - Angular 项目配置
+- `angular-typescript` - Angular + TypeScript 项目配置
+- `svelte` - Svelte 项目配置
+- `svelte-typescript` - Svelte + TypeScript 项目配置
+- `next` - Next.js 项目配置
+- `nuxt` - Nuxt.js 项目配置
 - `node` - Node.js 项目配置
 
 ### 配置文件
@@ -162,6 +173,41 @@ ldesign-formatter check [paths...] [options]
 选项：
 - `-v, --verbose` - 显示详细信息
 
+### watch
+
+监听文件变化并自动格式化：
+
+```bash
+ldesign-formatter watch [paths...] [options]
+```
+
+选项：
+- `-v, --verbose` - 显示详细信息
+- `-d, --debounce <ms>` - 防抖延迟（毫秒），默认 300
+
+### stats
+
+显示格式化统计信息：
+
+```bash
+ldesign-formatter stats
+```
+
+### ignore
+
+管理忽略规则：
+
+```bash
+# 添加忽略规则
+ldesign-formatter ignore add "*.test.js" "dist/**"
+
+# 移除忽略规则
+ldesign-formatter ignore remove "*.test.js"
+
+# 列出所有忽略规则
+ldesign-formatter ignore list
+```
+
 ## 💡 使用示例
 
 ### 在 package.json 中添加脚本
@@ -171,7 +217,9 @@ ldesign-formatter check [paths...] [options]
   "scripts": {
     "format": "ldesign-formatter format",
     "format:check": "ldesign-formatter check",
-    "format:staged": "ldesign-formatter format --staged"
+    "format:staged": "ldesign-formatter format --staged",
+    "format:watch": "ldesign-formatter watch",
+    "format:stats": "ldesign-formatter stats"
   }
 }
 ```
@@ -202,9 +250,39 @@ jobs:
 npx ldesign-formatter init --git-hooks
 ```
 
+### 实时监听模式
+
+在开发过程中，启动 watch 模式实时格式化：
+
+```bash
+npx ldesign-formatter watch src/
+```
+
+### 查看项目统计
+
+查看项目中文件类型分布和格式化历史：
+
+```bash
+npx ldesign-formatter stats
+```
+
+### 管理忽略规则
+
+动态管理需要忽略的文件模式：
+
+```bash
+# 添加忽略规则
+npx ldesign-formatter ignore add "*.generated.ts" "coverage/**"
+
+# 查看当前忽略规则
+npx ldesign-formatter ignore list
+```
+
 ## 🔧 编程式 API
 
 你也可以在代码中使用 formatter：
+
+### 基本使用
 
 ```typescript
 import { Formatter, ConfigLoader } from '@ldesign/formatter'
@@ -223,6 +301,65 @@ const result = await formatter.format({
 })
 
 console.log(`Formatted ${result.formatted} files`)
+```
+
+### 项目类型检测
+
+```typescript
+import { createProjectDetector } from '@ldesign/formatter'
+
+const detector = createProjectDetector(process.cwd())
+const detection = await detector.detect()
+
+console.log(`Detected project type: ${detection.type}`)
+console.log(`Confidence: ${detection.confidence * 100}%`)
+console.log(`Features: ${detection.features.join(', ')}`)
+```
+
+### 规则冲突检测
+
+```typescript
+import { createConflictDetector, ConfigLoader } from '@ldesign/formatter'
+
+const configLoader = new ConfigLoader()
+const config = await configLoader.load(process.cwd())
+
+const detector = createConflictDetector(config)
+const conflicts = detector.detect()
+
+if (conflicts.length > 0) {
+  console.log('Found rule conflicts:')
+  conflicts.forEach(conflict => {
+    console.log(`- ${conflict.rule}: ${conflict.description}`)
+    console.log(`  Tools: ${conflict.tools.join(', ')}`)
+    if (conflict.suggestion) {
+      console.log(`  Suggestion: ${conflict.suggestion}`)
+    }
+  })
+}
+```
+
+### 缓存管理
+
+```typescript
+import { CacheManager, ConfigLoader } from '@ldesign/formatter'
+
+const configLoader = new ConfigLoader()
+const config = await configLoader.load(process.cwd())
+
+const cacheManager = new CacheManager(process.cwd(), config)
+await cacheManager.init()
+
+// 检查文件是否需要格式化
+const shouldFormat = await cacheManager.shouldFormat('src/index.ts')
+
+if (shouldFormat) {
+  // 格式化文件...
+  await cacheManager.updateFile('src/index.ts')
+}
+
+// 保存缓存
+await cacheManager.save()
 ```
 
 ## 🤝 贡献

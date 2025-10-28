@@ -49,7 +49,10 @@
     "lint": "eslint src",
     "lint:fix": "eslint src --fix",
     "type-check": "tsc --noEmit",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
   },
   "dependencies": {
     "prettier": "^3.2.5",
@@ -66,7 +69,11 @@
     "ejs": "^3.1.9",
     "execa": "^8.0.1",
     "cosmiconfig": "^9.0.0",
-    "ignore": "^5.3.0"
+    "ignore": "^5.3.0",
+    "chokidar": "^3.6.0",
+    "cli-progress": "^3.12.0",
+    "diff": "^5.2.0",
+    "p-limit": "^5.0.0"
   },
   "devDependencies": {
     "@types/node": "^20.11.16",
@@ -74,10 +81,13 @@
     "@types/ejs": "^3.1.5",
     "@types/fs-extra": "^11.0.4",
     "@types/eslint": "^9.0.0",
+    "@types/diff": "^5.2.0",
+    "@types/cli-progress": "^3.11.5",
     "typescript": "^5.7.3",
     "tsup": "^8.0.0",
     "vitest": "^1.6.1",
-    "rimraf": "^5.0.5"
+    "rimraf": "^5.0.5",
+    "vitepress": "^1.0.0"
   },
   "engines": {
     "node": ">=18.0.0"
