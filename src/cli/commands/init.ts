@@ -274,12 +274,18 @@ async function updatePackageJson(cwd: string): Promise<void> {
  * 获取预设描述
  */
 function getPresetDescription(preset: PresetName): string {
-  const descriptions: Record<PresetName, string> = {
+  const descriptions: Partial<Record<PresetName, string>> = {
     base: 'Basic configuration with Prettier',
     vue: 'Vue.js projects',
     'vue-typescript': 'Vue.js with TypeScript',
     react: 'React projects',
     'react-typescript': 'React with TypeScript',
+    angular: 'Angular projects',
+    'angular-typescript': 'Angular with TypeScript',
+    svelte: 'Svelte projects',
+    'svelte-typescript': 'Svelte with TypeScript',
+    next: 'Next.js projects',
+    nuxt: 'Nuxt.js projects',
     node: 'Node.js projects',
   }
   return descriptions[preset] || preset

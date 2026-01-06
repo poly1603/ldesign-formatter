@@ -1,5 +1,4 @@
 import path from 'node:path'
-import { ConfigLoader } from '../../core/config-loader.js'
 import { readFile, writeFile, exists } from '../../utils/file-utils.js'
 import { logger } from '../../utils/logger.js'
 

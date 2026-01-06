@@ -1,10 +1,31 @@
 /**
  * @ldesign/formatter
  * 统一的代码格式化工具
+ * @packageDocumentation
  */
 
 // 导出类型
 export * from './types/index.js'
+
+// 导出错误类
+export {
+  ErrorCode,
+  FormatterError,
+  ConfigError,
+  FileError,
+  IntegrationError,
+  CacheError,
+  GitError,
+  isFormatterError,
+  isErrorCode,
+  wrapError,
+  assert,
+  assertDefined,
+  getErrorMessage,
+  safeAsync,
+  safeSync,
+} from './errors.js'
+export type { ErrorSeverity } from './errors.js'
 
 // 导出预设配置
 export * from './presets/index.js'

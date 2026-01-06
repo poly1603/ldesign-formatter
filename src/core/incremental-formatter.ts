@@ -9,13 +9,11 @@ import { logger } from '../utils/logger.js'
  */
 export class IncrementalFormatter {
   private cwd: string
-  private config: FormatterConfig
   private formatter: Formatter
   private fileCollector: FileCollector
 
   constructor(cwd: string, config: FormatterConfig) {
     this.cwd = cwd
-    this.config = config
     this.formatter = new Formatter(cwd, config)
     this.fileCollector = new FileCollector(cwd, config)
   }

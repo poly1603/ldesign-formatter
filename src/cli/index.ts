@@ -6,6 +6,7 @@ import { formatCommand } from './commands/format.js'
 import { checkCommand } from './commands/check.js'
 import { watchCommand } from './commands/watch.js'
 import { statsCommand } from './commands/stats.js'
+import { diffCommand } from './commands/diff.js'
 import { ignoreAddCommand, ignoreRemoveCommand, ignoreListCommand } from './commands/ignore.js'
 import { logger } from '../utils/logger.js'
 
@@ -87,6 +88,28 @@ program
   .action(async () => {
     try {
       await statsCommand()
+    } catch (error) {
+      logger.error('Command failed', error as Error)
+      process.exit(1)
+    }
+  })
+
+// diff 命令
+program
+  .command('diff [paths...]')
+  .description('显示格式化前后的差异')
+  .option('--no-color', '禁用颜色输出')
+  .option('-C, --context <lines>', '上下文行数', '3')
+  .option('--name-only', '只显示有差异的文件名')
+  .option('--stat', '显示统计信息')
+  .action(async (paths, options) => {
+    try {
+      await diffCommand(paths, {
+        color: options.color,
+        context: parseInt(options.context),
+        nameOnly: options.nameOnly,
+        stat: options.stat,
+      })
     } catch (error) {
       logger.error('Command failed', error as Error)
       process.exit(1)

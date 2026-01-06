@@ -163,24 +163,57 @@ export function getExtension(filePath: string): string {
 }
 
 /**
+ * 获取文件名
+ */
+export function getFileName(filePath: string): string {
+  return path.basename(filePath)
+}
+
+/**
+ * 获取文件名（不含扩展名）
+ */
+export function getFileNameWithoutExt(filePath: string): string {
+  return path.basename(filePath, path.extname(filePath))
+}
+
+/**
+ * 确保目录存在
+ */
+export async function ensureDir(dirPath: string): Promise<void> {
+  await fs.ensureDir(dirPath)
+}
+
+/**
  * 判断文件是否需要格式化
  */
 export function shouldFormat(filePath: string): boolean {
   const ext = getExtension(filePath)
   const formattableExtensions = [
     '.js',
+    '.mjs',
+    '.cjs',
     '.jsx',
     '.ts',
+    '.mts',
+    '.cts',
     '.tsx',
     '.vue',
+    '.svelte',
+    '.astro',
     '.css',
     '.scss',
+    '.sass',
     '.less',
     '.html',
+    '.htm',
     '.json',
+    '.jsonc',
     '.md',
+    '.mdx',
     '.yaml',
     '.yml',
+    '.graphql',
+    '.gql',
   ]
   return formattableExtensions.includes(ext)
 }

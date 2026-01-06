@@ -27,7 +27,7 @@ export async function statsCommand(): Promise<void> {
         '.git',
         'dist',
         'build',
-        ...(config.ignore || []),
+        ...(config?.ignore || []),
       ],
       onlyFiles: true,
     }
@@ -78,9 +78,9 @@ function displayStats(stats: FormatStats): void {
   logger.newLine()
   logger.info(`Project: ${stats.projectPath}`)
   logger.info(`Total files: ${stats.totalFiles}`)
-  
+
   logger.newLine()
-  logger.subtitle('File Types Distribution')
+  logger.info('File Types Distribution')
   
   // 按数量排序文件类型
   const sortedTypes = Object.entries(stats.fileTypes)
@@ -95,7 +95,7 @@ function displayStats(stats: FormatStats): void {
 
   if (stats.history.length > 0) {
     logger.newLine()
-    logger.subtitle('Recent Format History')
+    logger.info('Recent Format History')
     
     for (const entry of stats.history) {
       const date = new Date(entry.timestamp).toLocaleString()

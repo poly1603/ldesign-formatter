@@ -16,7 +16,12 @@ export async function watchCommand(paths: string[], options: WatchOptions): Prom
 
   // 加载配置
   const configLoader = new ConfigLoader()
-  const config = await configLoader.load(cwd)
+  let config = await configLoader.load(cwd)
+
+  if (!config) {
+    logger.warn('No configuration found, using default base preset')
+    config = configLoader.getDefault('base')
+  }
 
   // 创建格式化器
   const formatter = new Formatter(cwd, config)
@@ -32,7 +37,7 @@ export async function watchCommand(paths: string[], options: WatchOptions): Prom
       '**/dist/**',
       '**/build/**',
       '**/*.min.{js,css}',
-      ...(config.ignore || []),
+      ...(config?.ignore || []),
     ],
     persistent: true,
     ignoreInitial: true,

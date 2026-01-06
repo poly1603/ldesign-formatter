@@ -32,8 +32,11 @@ export class Logger {
   /**
    * 警告消息
    */
-  warn(message: string): void {
+  warn(message: string, error?: Error): void {
     console.warn(chalk.yellow('⚠'), message)
+    if (error && this.verbose) {
+      console.warn(chalk.yellow(error.stack || error.message))
+    }
   }
 
   /**
@@ -46,10 +49,20 @@ export class Logger {
   /**
    * 调试消息
    */
-  debug(message: string): void {
+  debug(message: string, error?: Error): void {
     if (this.verbose) {
       console.log(chalk.gray('›'), message)
+      if (error) {
+        console.log(chalk.gray(error.stack || error.message))
+      }
     }
+  }
+
+  /**
+   * 副标题
+   */
+  subtitle(message: string): void {
+    console.log(chalk.gray(message))
   }
 
   /**

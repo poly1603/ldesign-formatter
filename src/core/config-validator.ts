@@ -59,7 +59,7 @@ export class ConfigValidator {
   private validatePrettier(
     config: any,
     errors: string[],
-    warnings: string[]
+    _warnings: string[]
   ): void {
     if (config.tabWidth !== undefined) {
       if (typeof config.tabWidth !== 'number' || config.tabWidth < 1) {

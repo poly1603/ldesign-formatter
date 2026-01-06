@@ -1,3 +1,53 @@
+// ============================================================================
+// 基础类型
+// ============================================================================
+
+/**
+ * 日志级别
+ */
+export type LogLevel = 'debug' | 'info' | 'warn' | 'error' | 'silent'
+
+/**
+ * 格式化工具类型
+ */
+export type FormatterTool = 'prettier' | 'eslint' | 'stylelint'
+
+/**
+ * 文件状态
+ */
+export type FileStatus = 'formatted' | 'unchanged' | 'error' | 'ignored' | 'pending'
+
+/**
+ * 解析器类型
+ */
+export type ParserType =
+  | 'babel'
+  | 'babel-flow'
+  | 'babel-ts'
+  | 'typescript'
+  | 'css'
+  | 'scss'
+  | 'less'
+  | 'html'
+  | 'xml'
+  | 'vue'
+  | 'angular'
+  | 'svelte'
+  | 'astro'
+  | 'json'
+  | 'json5'
+  | 'jsonc'
+  | 'yaml'
+  | 'toml'
+  | 'markdown'
+  | 'mdx'
+  | 'graphql'
+  | string  // 允许自定义解析器
+
+// ============================================================================
+// 配置相关类型
+// ============================================================================
+
 /**
  * 格式化工具的配置接口
  */
@@ -16,6 +66,14 @@ export interface FormatterConfig {
   gitHooks?: GitHooksConfig
   /** 是否在 CI 环境中运行 */
   ci?: boolean
+  /** 日志级别 */
+  logLevel?: LogLevel
+  /** 并发数 */
+  concurrency?: number
+  /** 格式化超时（毫秒） */
+  timeout?: number
+  /** 失败重试次数 */
+  retries?: number
 }
 
 /**
@@ -39,41 +97,110 @@ export type PresetName =
  * Prettier 配置
  */
 export interface PrettierConfig {
+  /** 是否添加分号 */
   semi?: boolean
+  /** 使用单引号 */
   singleQuote?: boolean
+  /** 引号属性处理 */
   quoteProps?: 'as-needed' | 'consistent' | 'preserve'
+  /** 尾随逗号 */
   trailingComma?: 'none' | 'es5' | 'all'
+  /** Tab 宽度 */
   tabWidth?: number
+  /** 使用 Tab 而非空格 */
   useTabs?: boolean
+  /** 打印宽度 */
   printWidth?: number
+  /** 对象括号内空格 */
   bracketSpacing?: boolean
+  /** 括号与内容同行 */
   bracketSameLine?: boolean
+  /** 箭头函数括号 */
   arrowParens?: 'always' | 'avoid'
+  /** 行尾符 */
   endOfLine?: 'lf' | 'crlf' | 'cr' | 'auto'
-  [key: string]: any
+  /** JSX 单引号 */
+  jsxSingleQuote?: boolean
+  /** HTML 空白敏感度 */
+  htmlWhitespaceSensitivity?: 'css' | 'strict' | 'ignore'
+  /** Vue 文件缩进脚本和样式 */
+  vueIndentScriptAndStyle?: boolean
+  /** 嵌入语言格式化 */
+  embeddedLanguageFormatting?: 'auto' | 'off'
+  /** 单属性每行 */
+  singleAttributePerLine?: boolean
+  /** 其他 Prettier 配置项 */
+  [key: string]: unknown
 }
+
+/**
+ * ESLint 规则严重性
+ */
+export type ESLintRuleSeverity = 'off' | 'warn' | 'error' | 0 | 1 | 2
+
+/**
+ * ESLint 规则配置
+ */
+export type ESLintRuleConfig = ESLintRuleSeverity | [ESLintRuleSeverity, ...unknown[]]
 
 /**
  * ESLint 配置
  */
 export interface ESLintConfig {
+  /** 继承的配置 */
   extends?: string | string[]
+  /** 插件 */
   plugins?: string[]
-  rules?: Record<string, any>
+  /** 规则 */
+  rules?: Record<string, ESLintRuleConfig>
+  /** 环境 */
   env?: Record<string, boolean>
+  /** 解析器 */
   parser?: string
-  parserOptions?: Record<string, any>
-  [key: string]: any
+  /** 解析器选项 */
+  parserOptions?: {
+    ecmaVersion?: number | 'latest'
+    sourceType?: 'module' | 'script' | 'commonjs'
+    ecmaFeatures?: {
+      jsx?: boolean
+      globalReturn?: boolean
+      impliedStrict?: boolean
+    }
+    project?: string | string[]
+    tsconfigRootDir?: string
+    [key: string]: unknown
+  }
+  /** 全局变量 */
+  globals?: Record<string, boolean | 'readonly' | 'writable' | 'off'>
+  /** 设置 */
+  settings?: Record<string, unknown>
+  /** 其他配置 */
+  [key: string]: unknown
 }
+
+/**
+ * Stylelint 规则严重性
+ */
+export type StylelintRuleSeverity = 'warning' | 'error' | null | boolean
 
 /**
  * Stylelint 配置
  */
 export interface StylelintConfig {
+  /** 继承的配置 */
   extends?: string | string[]
+  /** 插件 */
   plugins?: string[]
-  rules?: Record<string, any>
-  [key: string]: any
+  /** 规则 */
+  rules?: Record<string, StylelintRuleSeverity | [StylelintRuleSeverity, unknown]>
+  /** 自定义语法 */
+  customSyntax?: string
+  /** 忽略文件 */
+  ignoreFiles?: string | string[]
+  /** 默认严重性 */
+  defaultSeverity?: 'warning' | 'error'
+  /** 其他配置 */
+  [key: string]: unknown
 }
 
 /**
@@ -132,6 +259,8 @@ export interface FormatResult {
   }>
   /** 格式化的文件列表 */
   formattedFiles?: string[]
+  /** 执行时长（毫秒） */
+  duration?: number
 }
 
 /**
@@ -290,5 +419,179 @@ export interface FormatReport {
     platform: string
     cwd: string
   }
+}
+
+// ============================================================================
+// 事件系统类型
+// ============================================================================
+
+/**
+ * 事件类型
+ */
+export type FormatterEventType =
+  | 'start'
+  | 'progress'
+  | 'complete'
+  | 'error'
+  | 'file'
+  | 'cache:hit'
+  | 'cache:miss'
+  | 'config:load'
+  | 'config:error'
+
+/**
+ * 格式化开始事件数据
+ */
+export interface FormatStartEventData {
+  /** 总文件数 */
+  total: number
+  /** 是否仅检查 */
+  check: boolean
+  /** 文件列表 */
+  files: string[]
+}
+
+/**
+ * 格式化进度事件数据
+ */
+export interface FormatProgressEventData {
+  /** 已完成数 */
+  completed: number
+  /** 总文件数 */
+  total: number
+  /** 百分比 */
+  percentage: number
+  /** 当前文件 */
+  file: string
+  /** 处理工具 */
+  tool: FormatterTool
+}
+
+/**
+ * 格式化完成事件数据
+ */
+export interface FormatCompleteEventData {
+  /** 格式化结果 */
+  result: FormatResult
+  /** 执行时长 */
+  duration: number
+}
+
+/**
+ * 文件事件数据
+ */
+export interface FileEventData {
+  /** 文件路径 */
+  file: string
+  /** 操作类型 */
+  action: 'formatted' | 'unchanged' | 'error' | 'skipped'
+  /** 处理工具 */
+  tool?: FormatterTool
+  /** 错误信息 */
+  error?: Error
+}
+
+/**
+ * 事件数据映射
+ */
+export interface FormatterEventDataMap {
+  'start': FormatStartEventData
+  'progress': FormatProgressEventData
+  'complete': FormatCompleteEventData
+  'error': { error: Error; file?: string }
+  'file': FileEventData
+  'cache:hit': { file: string }
+  'cache:miss': { file: string }
+  'config:load': { config: FormatterConfig; filepath: string }
+  'config:error': { error: Error; filepath?: string }
+}
+
+/**
+ * 事件处理器
+ */
+export type FormatterEventHandler<T extends FormatterEventType> = (
+  data: FormatterEventDataMap[T]
+) => void | Promise<void>
+
+// ============================================================================
+// 任务队列类型
+// ============================================================================
+
+/**
+ * 任务状态
+ */
+export type TaskStatus = 'pending' | 'running' | 'completed' | 'failed' | 'cancelled'
+
+/**
+ * 格式化任务
+ */
+export interface FormatTask {
+  /** 任务 ID */
+  id: string
+  /** 文件路径 */
+  file: string
+  /** 任务状态 */
+  status: TaskStatus
+  /** 创建时间 */
+  createdAt: number
+  /** 开始时间 */
+  startedAt?: number
+  /** 完成时间 */
+  completedAt?: number
+  /** 重试次数 */
+  retries?: number
+  /** 错误信息 */
+  error?: Error
+}
+
+/**
+ * 任务队列统计
+ */
+export interface TaskQueueStats {
+  pending: number
+  running: number
+  completed: number
+  failed: number
+  cancelled?: number
+  total: number
+}
+
+// ============================================================================
+// 工具类型
+// ============================================================================
+
+/**
+ * 深度只读
+ */
+export type DeepReadonly<T> = {
+  readonly [K in keyof T]: T[K] extends object ? DeepReadonly<T[K]> : T[K]
+}
+
+/**
+ * 深度可选
+ */
+export type DeepPartial<T> = {
+  [K in keyof T]?: T[K] extends object ? DeepPartial<T[K]> : T[K]
+}
+
+/**
+ * 提取必填字段
+ */
+export type RequiredKeys<T> = {
+  [K in keyof T]-?: undefined extends T[K] ? never : K
+}[keyof T]
+
+/**
+ * 提取可选字段
+ */
+export type OptionalKeys<T> = {
+  [K in keyof T]-?: undefined extends T[K] ? K : never
+}[keyof T]
+
+/**
+ * 运行时配置
+ */
+export type RuntimeConfig = Required<Omit<FormatterConfig, 'preset'>> & {
+  preset?: PresetName
 }
 

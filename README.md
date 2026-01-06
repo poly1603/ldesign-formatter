@@ -13,9 +13,12 @@
 - 📦 **预设配置** - 提供多种预设配置（React、Vue、Angular、Svelte、Next.js、Nuxt等）
 - 👁️ **Watch 模式** - 实时监听文件变化，自动格式化
 - 📊 **统计分析** - 显示项目格式化统计信息
-- ⚡ **智能缓存** - 自动缓存已格式化文件，避免重复处理
+- ⚡ **智能缓存** - 自动缓存已格式化文件，支持 LRU 淘汰
 - ⚠️ **冲突检测** - 自动检测并提示规则冲突
 - 🛠️ **项目检测** - 自动识别项目类型，推荐合适配置
+- 🔀 **并发处理** - 多文件并行格式化，大幅提升性能
+- 📝 **Diff 预览** - 格式化前预览代码变更
+- 🚨 **统一错误处理** - 完善的错误类型和错误码体系
 
 ## 📦 安装
 
@@ -193,6 +196,33 @@ ldesign-formatter watch [paths...] [options]
 ldesign-formatter stats
 ```
 
+### diff
+
+显示格式化前后的差异：
+
+```bash
+# 显示所有文件的格式化差异
+ldesign-formatter diff
+
+# 显示指定目录的差异
+ldesign-formatter diff src/
+
+# 只显示有差异的文件名
+ldesign-formatter diff --name-only
+
+# 显示统计信息
+ldesign-formatter diff --stat
+
+# 设置上下文行数
+ldesign-formatter diff -C 5
+```
+
+选项：
+- `--no-color` - 禁用颜色输出
+- `-C, --context <lines>` - 上下文行数（默认 3）
+- `--name-only` - 只显示有差异的文件名
+- `--stat` - 显示统计信息
+
 ### ignore
 
 管理忽略规则：
@@ -294,6 +324,15 @@ const config = await configLoader.load(process.cwd())
 // 创建格式化器
 const formatter = new Formatter(process.cwd(), config)
 
+// 监听事件
+formatter.on('progress', (data) => {
+  console.log(`Progress: ${data.percentage}% - ${data.file}`)
+})
+
+formatter.on('complete', (data) => {
+  console.log(`Completed in ${data.duration}ms`)
+})
+
 // 格式化文件
 const result = await formatter.format({
   paths: ['src/'],
@@ -301,6 +340,7 @@ const result = await formatter.format({
 })
 
 console.log(`Formatted ${result.formatted} files`)
+console.log(`Duration: ${result.duration}ms`)
 ```
 
 ### 项目类型检测
@@ -347,7 +387,11 @@ import { CacheManager, ConfigLoader } from '@ldesign/formatter'
 const configLoader = new ConfigLoader()
 const config = await configLoader.load(process.cwd())
 
-const cacheManager = new CacheManager(process.cwd(), config)
+// 创建缓存管理器（支持 LRU 淘汰）
+const cacheManager = new CacheManager(process.cwd(), config, {
+  maxEntries: 5000,  // 最大缓存条目数
+  maxAge: 7 * 24 * 60 * 60 * 1000,  // 7 天过期
+})
 await cacheManager.init()
 
 // 检查文件是否需要格式化
@@ -358,8 +402,73 @@ if (shouldFormat) {
   await cacheManager.updateFile('src/index.ts')
 }
 
+// 获取缓存统计
+const stats = cacheManager.getStats()
+console.log(`Cache size: ${stats.size} / ${stats.maxEntries}`)
+
+// 清理过期缓存
+const cleaned = cacheManager.cleanup()
+console.log(`Cleaned ${cleaned} expired entries`)
+
 // 保存缓存
 await cacheManager.save()
+```
+
+### 错误处理
+
+```typescript
+import {
+  FormatterError,
+  ConfigError,
+  FileError,
+  IntegrationError,
+  ErrorCode,
+  isFormatterError,
+  getErrorMessage,
+} from '@ldesign/formatter'
+
+try {
+  await formatter.format()
+} catch (error) {
+  if (isFormatterError(error)) {
+    console.log(`Error code: ${error.code}`)
+    console.log(`Message: ${error.getUserMessage()}`)
+    console.log(`Severity: ${error.severity}`)
+
+    if (error instanceof ConfigError) {
+      console.log(`Config file: ${error.filepath}`)
+    } else if (error instanceof IntegrationError) {
+      console.log(`Tool: ${error.tool}`)
+      console.log(`File: ${error.file}`)
+    }
+  } else {
+    console.log(getErrorMessage(error))
+  }
+}
+```
+
+## 🛠️ 高级配置
+
+### 并发控制
+
+```javascript
+module.exports = {
+  preset: 'vue-typescript',
+
+  // 并发配置
+  concurrency: 8,     // 并发数（默认 4）
+  timeout: 30000,     // 单文件超时时间 (ms)
+  retries: 2,         // 失败重试次数
+}
+```
+
+### 日志级别
+
+```javascript
+module.exports = {
+  preset: 'vue-typescript',
+  logLevel: 'debug',  // 'debug' | 'info' | 'warn' | 'error' | 'silent'
+}
 ```
 
 ## 🤝 贡献

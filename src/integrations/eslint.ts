@@ -4,18 +4,17 @@ import { logger } from '../utils/logger.js'
 
 /**
  * ESLint 集成
+ * @description 提供与 ESLint 的集成，支持代码检查和自动修复
  */
 export class ESLintIntegration {
+  /** ESLint 实例 */
   private eslint: ESLint
-  private config: ESLintConfig
 
   constructor(config: ESLintConfig, cwd: string) {
-    this.config = config
     this.eslint = new ESLint({
       cwd,
       fix: true,
-      baseConfig: config as any,
-      useEslintrc: false, // 不使用项目的 .eslintrc，使用我们提供的配置
+      overrideConfig: config as unknown as ESLint.Options['overrideConfig'],
     })
   }
 

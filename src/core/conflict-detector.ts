@@ -44,10 +44,13 @@ export class ConflictDetector {
     if (prettier.semi !== undefined && eslint.rules['semi']) {
       const prettierSemi = prettier.semi
       const eslintSemi = eslint.rules['semi']
-      
+
+      // 检查 ESLint 规则配置
+      const eslintSemiValue = Array.isArray(eslintSemi) ? eslintSemi[1] : null
+
       if (
-        (prettierSemi && eslintSemi === 'never') ||
-        (!prettierSemi && eslintSemi === 'always')
+        (prettierSemi && eslintSemiValue === 'never') ||
+        (!prettierSemi && eslintSemiValue === 'always')
       ) {
         conflicts.push({
           rule: 'semi',
@@ -90,14 +93,17 @@ export class ConflictDetector {
     // max-len 冲突
     if (prettier.printWidth !== undefined && eslint.rules['max-len']) {
       const eslintMaxLen = eslint.rules['max-len']
-      
-      if (Array.isArray(eslintMaxLen) && eslintMaxLen[1]?.code !== prettier.printWidth) {
-        conflicts.push({
-          rule: 'max-len',
-          tools: ['Prettier', 'ESLint'],
-          description: 'Line width is configured differently',
-          suggestion: 'Use eslint-config-prettier to disable max-len rule',
-        })
+
+      if (Array.isArray(eslintMaxLen) && eslintMaxLen[1]) {
+        const maxLenConfig = eslintMaxLen[1] as { code?: number }
+        if (maxLenConfig.code !== prettier.printWidth) {
+          conflicts.push({
+            rule: 'max-len',
+            tools: ['Prettier', 'ESLint'],
+            description: 'Line width is configured differently',
+            suggestion: 'Use eslint-config-prettier to disable max-len rule',
+          })
+        }
       }
     }
 
@@ -105,10 +111,13 @@ export class ConflictDetector {
     if (prettier.arrowParens !== undefined && eslint.rules['arrow-parens']) {
       const prettierArrowParens = prettier.arrowParens
       const eslintArrowParens = eslint.rules['arrow-parens']
-      
+
+      // 检查 ESLint 规则配置
+      const eslintArrowParensValue = Array.isArray(eslintArrowParens) ? eslintArrowParens[1] : null
+
       if (
-        (prettierArrowParens === 'always' && eslintArrowParens === 'as-needed') ||
-        (prettierArrowParens === 'avoid' && eslintArrowParens === 'always')
+        (prettierArrowParens === 'always' && eslintArrowParensValue === 'as-needed') ||
+        (prettierArrowParens === 'avoid' && eslintArrowParensValue === 'always')
       ) {
         conflicts.push({
           rule: 'arrow-parens',
@@ -157,8 +166,11 @@ export class ConflictDetector {
     if (prettier.singleQuote !== undefined && stylelint.rules['string-quotes']) {
       const prettierQuote = prettier.singleQuote ? 'single' : 'double'
       const stylelintQuote = stylelint.rules['string-quotes']
-      
-      if (stylelintQuote !== prettierQuote) {
+
+      // 检查 Stylelint 规则配置
+      const stylelintQuoteValue = Array.isArray(stylelintQuote) ? stylelintQuote[1] : stylelintQuote
+
+      if (stylelintQuoteValue && typeof stylelintQuoteValue === 'string' && stylelintQuoteValue !== prettierQuote) {
         conflicts.push({
           rule: 'string-quotes',
           tools: ['Prettier', 'Stylelint'],
